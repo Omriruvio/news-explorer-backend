@@ -7,7 +7,7 @@ const {
   createArticle,
   getSavedArticles,
   getCurrentUser,
-} = require('../controllers/auth');
+} = require('../controllers/users');
 const { validateNewArticleRequest, validateDeleteArticleRequest } = require('./validation/schemas');
 
 router.get('/users/me', jwtauth, getCurrentUser);
