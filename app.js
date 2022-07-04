@@ -3,24 +3,18 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const mongoose = require('mongoose');
-const rateLimit = require('express-rate-limit');
 const { errors } = require('celebrate');
 const { errorLogger, requestLogger } = require('./middlewares/logger');
 const centralerrhandler = require('./middlewares/centralerrhandler');
 const NotFoundError = require('./utils/httperrors/notfounderror');
-const usersRoute = require('./routes/users');
-const authRoute = require('./routes/auth');
+const usersRoute = require('./routes/article');
+const authRoute = require('./routes/user');
+const { limiter } = require('./utils/ratelimiter');
 
-const { PORT = 3333, NODE_ENV } = process.env;
+const { PORT = 3000, NODE_ENV, MONGODB_URL } = process.env;
 const app = express();
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
-  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-});
 
-mongoose.connect('mongodb://0.0.0.0:27017/news-explorer');
+mongoose.connect(MONGODB_URL);
 
 app.use(limiter);
 app.use(cors());

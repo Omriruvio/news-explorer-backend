@@ -1,58 +1,59 @@
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const Article = require('../models/article');
-const NotFoundError = require('../utils/httperrors/notfounderror');
 const AuthorizationError = require('../utils/httperrors/authorizationerror');
-const { UNAUTHORIZED } = require('../utils/httpstatuscodes');
+const ConflictError = require('../utils/httperrors/conflicterror');
+const ValidationError = require('../utils/httperrors/validationerror');
+
+const { JWT_SECRET, NODE_ENV } = process.env;
 
 // returns information about the logged-in user (email and name)
 const getCurrentUser = (req, res, next) => {
   const { _id: userId } = req.user;
   User.findById(userId)
-    .orFail(() => next(new NotFoundError('User Id was not found.')))
     .then((user) => {
       res.send({ email: user.email, name: user.name });
     })
     .catch(next);
 };
 
-// returns all articles saved by the user
-const getSavedArticles = (req, res, next) => {
-  Article.find({})
-    .orFail(() => new NotFoundError('Article list is empty'))
-    .then((articles) => res.send(articles))
-    .catch(next);
-};
-
-// creates an article with the passed keyword, title,
-// text, date, source, link, and image in the body
-const createArticle = (req, res, next) => {
-  // const { keyword, title, text, date, source, link, image } = req.body;
-  Article.create({ ...req.body, owner: req.user._id })
-    .then((article) => res.send(article))
-    .catch(next);
-};
-
-// deletes the stored article by _id
-const deleteArticle = (req, res, next) => {
-  Article.findById(req.params.articleId)
-    .select('owner')
-    .orFail(() => next(new NotFoundError('Article not found')))
-    .then((foundArticle) => {
-      // Validates that current user is the owner of the requested article to be deleted.
-      if (req.user._id !== String(foundArticle.owner)) {
-        throw new AuthorizationError("Cannot delete other users' articles.", UNAUTHORIZED);
-      }
-      Article.findByIdAndRemove(req.params.articleId)
-        .orFail(() => new NotFoundError('Article not found.'))
-        .then((deletedArticle) => res.send(deletedArticle))
-        .catch(next);
+// creates a user with the passed email, password, and name in the body
+const createUser = (req, res, next) => {
+  const { email, name, password } = req.body;
+  bcrypt
+    .hash(password, 10)
+    .then((hash) => {
+      User.create({ email, name, password: hash })
+        .then((user) => res.send(user))
+        .catch((err) => {
+          if (err.code === 11000) {
+            next(new ConflictError('User already esists.'));
+          } else next(err);
+        });
     })
     .catch(next);
 };
 
-module.exports = {
-  getCurrentUser,
-  getSavedArticles,
-  createArticle,
-  deleteArticle,
+// checks the email and password passed in the body and returns a JWT
+const validateUser = (req, res, next) => {
+  const { email, password } = req.body;
+  User.findOne({ email })
+    .select('password')
+    .then((user) => {
+      if (!user) {
+        next(new ValidationError('User was not found.'));
+        return;
+      }
+      bcrypt.compare(password, user.password).then((match) => {
+        if (!match) {
+          next(new AuthorizationError('Incorrect credentials provided.'));
+          return;
+        }
+        const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', { expiresIn: '7d' });
+        res.send({ token });
+      });
+    })
+    .catch(next);
 };
+
+module.exports = { createUser, validateUser, getCurrentUser };
