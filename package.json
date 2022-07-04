@@ -6,7 +6,8 @@
   "scripts": {
     "test": "jest",
     "start": "node app.js",
-    "dev": "nodemon app.js"
+    "dev": "nodemon app.js",
+    "lint": "eslint ."
   },
   "repository": {
     "type": "git",
@@ -19,6 +20,7 @@
   },
   "homepage": "https://github.com/Omriruvio/news-explorer-backend#readme",
   "devDependencies": {
+    "eslint": "^8.19.0",
     "jest": "^28.1.2",
     "nodemon": "^2.0.18"
   },
@@ -27,7 +29,6 @@
     "celebrate": "^15.0.1",
     "cors": "^2.8.5",
     "dotenv": "^16.0.1",
-    "eslint": "^8.19.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "express": "^4.18.1",
     "express-rate-limit": "^6.4.0",

@@ -1,7 +1,7 @@
 const Article = require('../models/article');
 const NotFoundError = require('../utils/httperrors/notfounderror');
 const AuthorizationError = require('../utils/httperrors/authorizationerror');
-const { UNAUTHORIZED } = require('../utils/httpstatuscodes');
+const { FORBIDDEN } = require('../utils/httpstatuscodes');
 
 // returns all articles saved by the user
 const getSavedArticles = (req, res, next) => {
@@ -37,7 +37,7 @@ const deleteArticle = (req, res, next) => {
         return;
       }
       if (req.user._id !== String(foundArticle.owner)) {
-        next(new AuthorizationError("Cannot delete other users' articles.", UNAUTHORIZED));
+        next(new AuthorizationError("Cannot delete other users' articles.", FORBIDDEN));
         return;
       }
       Article.findByIdAndRemove(req.params.articleId)

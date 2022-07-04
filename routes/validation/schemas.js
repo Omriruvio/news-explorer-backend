@@ -2,7 +2,7 @@ const { celebrate, Joi } = require('celebrate');
 const validator = require('validator');
 
 const validateURL = (value, helpers) => (validator.isURL(value) ? value : helpers.error('string.uri'));
-const validateEmail = (value, helpers) => (validator.isEmail(value) ? value : helpers.error('string.uri'));
+const validateEmail = (value, helpers) => (validator.isEmail(value) ? value : helpers.error('string.email'));
 
 const validateNewArticleRequest = celebrate({
   body: Joi.object().keys({
@@ -18,7 +18,9 @@ const validateNewArticleRequest = celebrate({
 
 const validateDeleteArticleRequest = celebrate({
   params: Joi.object().keys({
-    articleId: Joi.string().min(24).max(24).required(),
+    articleId: Joi.string()
+      .min(24).max(24).required()
+      .hex(),
   }),
 });
 

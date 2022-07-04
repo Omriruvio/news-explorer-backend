@@ -1,10 +1,10 @@
 const httpStatusCodes = require('../httpstatuscodes');
 
 class ValidationError extends Error {
-  constructor(message) {
+  constructor(message, statusCode = httpStatusCodes.BAD_REQUEST) {
     super(message);
     this.name = 'ValidationError';
-    this.statusCode = httpStatusCodes.BAD_REQUEST;
+    this.statusCode = statusCode;
   }
 }
 
