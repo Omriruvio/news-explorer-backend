@@ -33,9 +33,9 @@ const createArticle = (req, res, next) => {
 
 // deletes the stored article by _id
 const deleteArticle = (req, res, next) => {
-  Article.findByIdAndDelete(req.body.id)
+  Article.findByIdAndRemove(req.params.articleId)
     .orFail(() => new NotFoundError('Article not found.'))
-    .then((article) => res.send(article))
+    .then((deletedArticle) => res.send(deletedArticle))
     .catch(next);
 };
 

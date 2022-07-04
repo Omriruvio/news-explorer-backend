@@ -8,13 +8,14 @@ const {
   getSavedArticles,
   getCurrentUser,
 } = require('../controllers/auth');
+const { validateNewArticleRequest, validateDeleteArticleRequest } = require('./validation/schemas');
 
 router.get('/users/me', jwtauth, getCurrentUser);
 
 router.get('/articles', jwtauth, getSavedArticles);
 
-router.post('/articles', jwtauth, createArticle);
+router.post('/articles', jwtauth, validateNewArticleRequest, createArticle);
 
-router.delete('/articles/:articleId', jwtauth, deleteArticle);
+router.delete('/articles/:articleId', jwtauth, validateDeleteArticleRequest, deleteArticle);
 
 module.exports = router;
