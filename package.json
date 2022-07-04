@@ -19,7 +19,8 @@
   },
   "homepage": "https://github.com/Omriruvio/news-explorer-backend#readme",
   "devDependencies": {
-    "jest": "^28.1.2"
+    "jest": "^28.1.2",
+    "nodemon": "^2.0.18"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
