@@ -43,6 +43,7 @@ const validateUser = (req, res, next) => {
   const { email, password } = req.body;
   User.findOne({ email })
     .select('password')
+    .select('name')
     .then((user) => {
       if (!user) {
         next(new ValidationError('User was not found.', UNAUTHORIZED));
@@ -54,7 +55,7 @@ const validateUser = (req, res, next) => {
           return;
         }
         const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : JWT_DEV_SECRET, { expiresIn: '7d' });
-        res.send({ token });
+        res.send({ token, name: user.name });
       });
     })
     .catch(next);
