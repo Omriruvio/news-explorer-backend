@@ -41,7 +41,9 @@ const deleteArticle = (req, res, next) => {
         return;
       }
       Article.findByIdAndRemove(req.params.articleId)
-        .then((deletedArticle) => res.send(deletedArticle))
+        .then(() => {
+          Article.find({}).then((allArticles) => res.send(allArticles));
+        })
         .catch(next);
     })
     .catch(next);
